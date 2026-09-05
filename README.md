@@ -1,27 +1,19 @@
 # Mutant ID Analyzer
 
-Mutant ID Analyzer is a small Python GUI for CRISPR/Cas mutant identification from Sanger sequencing `.ab1` files or FASTA mutant sequences. It aligns mutant sequencing reads to a pasted PCR amplicon reference sequence, calls local DNA variants, projects the variants onto a full CDS, translates the mutant protein, and exports publication-style DNA/protein mutation summary figures.
+A small Python GUI for analyzing Sanger sequencing `.ab1` files or FASTA mutant sequences from mutant identification experiments.
 
-The figure style is designed for manuscript mutation panels: wild-type and mutant DNA sequence alignment, wild-type and mutant protein sequence alignment, changed bases and amino acids highlighted in red, optional gene-structure or protein-domain schematic, and editable PDF output.
-<img width="1226" height="555" alt="image" src="https://github.com/user-attachments/assets/71cc528e-d8a5-4309-8d3e-4ab532d9bf4b" />
+The program:
 
-
-## Features
-
-- Paste PCR amplicon reference sequence directly into the GUI.
-- Paste full CDS sequence for coding-coordinate annotation and protein translation.
-- Enter sgRNA sequence; the program locates it automatically in the PCR reference and CDS.
-- Analyze one or more Sanger `.ab1` files or FASTA mutant sequence files in one run.
-- Automatically test forward and reverse-complement read orientation.
-- Detect substitutions, insertions, and deletions.
-- Display local DNA sequence around the sgRNA first base.
-- Display local WT and mutant protein sequence around the sgRNA-targeted amino acid.
-- Highlight mutant DNA bases and amino acids that differ from WT.
-- Show insertions or deletions with `-` gap characters.
-- Draw optional gene-structure or protein-domain schematics.
-- Customize sequence labels, domain labels, colors, font sizes, and vertical spacing.
-- Export PNG and editable PDF figures.
-- Export per-sample variant tables and a batch summary table.
+- reads one or more `.ab1` chromatogram files or FASTA sequence files
+- accepts a pasted PCR amplicon DNA/FASTA sequence in the GUI text box
+- aligns each read to a user-supplied PCR amplicon reference sequence
+- detects substitutions, insertions, and deletions
+- marks the sgRNA position on the PCR reference sequence
+- highlights sequence differences in the DNA alignment
+- translates the coding sequence in codons and stops at the first stop codon
+- supports an optional gene-structure or protein-domain schematic
+- supports multiple mutant samples in one run
+- exports publication-style PNG and editable PDF figures
 
 ## Files
 
@@ -30,35 +22,26 @@ mutant_id_gui.py             GUI application
 mutant_id_core.py            sequence loading, alignment, variant calling, translation, and plotting
 requirements-mutant-id.txt   Python dependencies
 run_mutant_id_gui.bat        Windows launcher
-README.md                    GitHub help document
+README.md                    English documentation
 ```
 
 ## Requirements
 
 - Python 3.10 or newer
-- Tkinter support, included with most standard Python installations on Windows
+- Tkinter support
 
 Python packages:
 
 ```text
-biopython>=1.83
-matplotlib>=3.8
-numpy>=1.26
-pillow>=10.0
+biopython
+matplotlib
+numpy
+pillow
 ```
 
-Install dependencies:
+Install them with:
 
 ```bash
-python -m pip install -r requirements-mutant-id.txt
-```
-
-If another Python environment already contains incompatible scientific packages, create a clean virtual environment first:
-
-```bash
-python -m venv .venv
-.venv\Scripts\activate
-python -m pip install --upgrade pip
 python -m pip install -r requirements-mutant-id.txt
 ```
 
@@ -70,7 +53,7 @@ On Windows, double-click:
 run_mutant_id_gui.bat
 ```
 
-Or run from a terminal:
+Or start it from a terminal:
 
 ```bash
 python mutant_id_gui.py
@@ -78,65 +61,60 @@ python mutant_id_gui.py
 
 ## Input Workflow
 
-1. Paste the PCR amplicon reference sequence into **PCR amplicon reference sequence**. FASTA text is accepted; header lines beginning with `>` are ignored.
+1. Paste the PCR amplicon reference sequence or FASTA text directly into the **PCR amplicon reference sequence** box. This can be the sequence between the sequencing primers; it does not need to be the full gene or full CDS.
 2. Enter the sgRNA sequence.
-3. Paste the full CDS sequence into **Full CDS sequence**. This sequence is used for CDS-coordinate mapping and protein translation.
-4. Set **Sequence bp before / after sgRNA**. These values are anchored on the first base of the sgRNA, not on the full sgRNA span. The default is `20 / 40`, so the displayed DNA window contains 60 reference bases.
-5. Set **Protein aa before / after sgRNA**. These values are anchored on the amino acid containing the sgRNA first base. The default is `20 / 40`.
-6. Adjust sequence layout parameters if needed:
-   - **Reference-mutant row gap**
-   - **60-base block gap**
-   - **DNA-to-protein panel gap**
-   - **sgRNA line-to-DNA gap**
-   - **DNA font size**
-   - **Protein font size**
-   - **Structure label font size**
-7. Enter **Sequence labels**. The first line is the reference label. Each following line is used for one mutant sample in input-file order. Mutant labels are shown in italics.
-8. Optional: choose **Gene structure** or **Protein domain** and enter structure information.
-9. Add one or more `.ab1` sequencing files or FASTA mutant-sequence files.
-10. Click **Run analysis**.
-
-## Structure or Domain Panel
-
-The schematic panel is optional.
-
-For **Gene structure**:
-
-- Enter the total gene/CDS length in base pairs.
-- Enter the sgRNA start position in the same base-pair coordinate system.
-- Add exon regions with name, start, end, and color fields.
-- Exons are drawn as black boxes on a horizontal line.
-
-For **Protein domain**:
-
-- Enter the total protein length in amino acids.
-- Enter the sgRNA start position in amino-acid coordinates.
-- Add domain regions with name, start, end, and color fields.
-- Domains are drawn as colored boxes on a horizontal line.
-
-The sgRNA start position is connected from the structure panel to the corresponding DNA sequence position. The program uses the start coordinate only for this connector.
+3. Paste the full CDS sequence in the **Full CDS sequence** box. This is used only for cDNA-coordinate annotation and protein translation.
+4. Enter how many nucleotides to show before and after the sgRNA first base. These two values add up to the local WT/mutant DNA display length, which wraps at 60 reference bases per row.
+5. Enter how many amino acids to show before and after the amino acid containing the sgRNA first base. These two values add up to the displayed protein window, which wraps at 60 amino acids per row.
+6. Set **Reference-mutant row gap** to control the vertical distance between Reference/Mutant DNA rows and WT/mutant protein rows within each block.
+7. Set **60-base block gap** to control the vertical space before the next 60-reference-base DNA block. The same setting is also used between wrapped protein blocks.
+8. Set **DNA-to-protein panel gap** to control the vertical space between the DNA panel and the protein panel.
+9. Set **sgRNA line-to-DNA gap** to control the vertical distance between the sgRNA line and the first DNA row.
+10. Set **DNA font size**, **Protein font size**, and **Structure label font size** independently. The structure setting controls region names such as `NBS`, `LRR domain`, `TM`, and `Kinase domain`.
+11. Enter **Sequence labels**: the first line is the reference label, and each following line is the label for one mutant in input-file order. Mutant labels are shown in italics.
+12. Choose **Gene structure** or **Protein domain** if you want the schematic panel.
+13. Enter the total CDS length or protein length in **Structure total length**.
+14. Enter the sgRNA start position in the same structure coordinates. For protein domains, use the amino-acid coordinate; for gene structures, use the CDS base-pair coordinate. For example, enter `249` when the sgRNA begins at amino acid 249. Do not enter the total protein/CDS length here.
+15. Add one or more structure rows with a name, start, end, and color.
+16. Use CDS bp positions for gene structure and amino-acid positions for protein domain.
+17. Gene structure exons are shown as black boxes; protein-domain regions use the selected colors.
+18. Add one or more `.ab1` sequencing files or FASTA mutant-sequence files.
+19. Click **Run analysis**.
 
 ## Default Display Settings
 
-```text
-DNA bases before / after sgRNA:      20 / 40
-Protein amino acids before / after:  20 / 40
-Reference-mutant row gap:            0.4
-60-base block gap:                   0.5
-DNA-to-protein panel gap:            0.25
-sgRNA line-to-DNA gap:               0.2
-DNA font size:                       10
-Protein font size:                   10
-Structure label font size:           10
-Line width:                          60 characters per row
-```
+- DNA bases before / after sgRNA: `20 / 40`
+- Protein amino acids before / after sgRNA: `20 / 40`
+- Reference-mutant row gap: `0.4`
+- 60-base block gap: `0.5`
+- DNA-to-protein panel gap: `0.25`
+- sgRNA line-to-DNA gap: `0.2`
+- DNA font size: `10`
+- Protein font size: `10`
+- Structure label font size: `10`
+
+## What the Program Does
+
+For each `.ab1` or FASTA file, the software:
+
+1. Reads the called sequence from each Sanger `.ab1` file or the first sequence record from each FASTA file. Chromatogram channels are accepted as part of the AB1 file format but are not plotted in the final figure.
+2. Automatically checks both forward and reverse-complement orientations and keeps the better alignment.
+3. Aligns the read to the supplied PCR amplicon reference sequence.
+4. Calls sequence differences as substitutions, insertions, or deletions.
+5. Locates the sgRNA directly in the full CDS and independently checks that the PCR amplicon covers the same target.
+6. Independently maps the PCR amplicon reference onto the supplied full CDS, in either orientation.
+7. Maps called sequence differences from PCR-reference coordinates to full-CDS coordinates, then translates the mutated CDS codon by codon and stops at the first stop codon.
+8. Generates a summary figure with:
+   - a local PCR-reference/mutant DNA alignment panel for the user-selected nucleotide window; insertion and deletion columns are shown with `-`, changed bases are colored red, the sgRNA interval is marked above the alignment, and long sequences wrap at 60 reference bases per line
+   - aligned WT and mutant protein sequences, limited to the user-selected amino-acid window and wrapped at 60 columns per line
+   - an optional gene-structure or protein-domain schematic at the top when structure regions are provided, with user-defined names, spans, colors, and sgRNA position; the sgRNA is linked to the sequence panel with a connector line
 
 ## Output
 
 Results are written to:
 
 ```text
-mutant_id_output/<timestamp>/
+mutant_id_output/<timestamp>/<sample_name>/
 ```
 
 Each sample folder contains:
@@ -148,7 +126,7 @@ Each sample folder contains:
 <sample>_report.txt
 ```
 
-The batch output folder also contains:
+A batch summary file is also created:
 
 ```text
 batch_summary.csv
@@ -156,97 +134,34 @@ publication_mutation_summary.png
 publication_mutation_summary.pdf
 ```
 
-The PDF files use editable text where supported by the PDF editor. They are suitable for further figure assembly in tools such as Adobe Illustrator.
+The `publication_mutation_summary` figure contains a shared local PCR-reference/mutant DNA alignment panel and aligned WT/mutant protein sequences for the selected amino-acid window. It does not display the full PCR amplicon, the full translated protein, a CDS schematic, or Sanger chromatograms.
 
-## Analysis Method
+## Notes
 
-For each Sanger sequencing file, the program reads the base-called sequence from the `.ab1` file using Biopython. For FASTA input, the program reads the first sequence record from the file. The read or FASTA sequence is aligned against the user-supplied PCR amplicon reference sequence, and both forward and reverse-complement orientations are tested. The orientation with the better alignment score is used for variant calling.
-
-Sequence differences are classified as substitutions, insertions, or deletions according to the read-to-reference alignment. The sgRNA sequence is independently located in the PCR amplicon reference and in the full CDS. The displayed DNA window is defined by user-selected flanks around the first base of the sgRNA. Within this local window, WT and mutant DNA sequences are displayed with gap characters for indels and red highlighting for non-matching bases.
-
-The PCR amplicon reference is mapped to the full CDS. Variants inside the displayed PCR-reference window are projected onto the full CDS, producing a mutant CDS sequence. The WT and mutant CDS sequences are translated codon by codon, and translation stops at the first stop codon. The WT and mutant protein sequences are aligned, and the local protein window around the sgRNA-targeted amino acid is displayed. Amino acids that differ from WT are highlighted in red.
+- Use a clean PCR-product reference sequence without spaces or numbering. It may be shorter than the full CDS.
+- FASTA headers beginning with `>` are ignored automatically when pasted into either sequence box.
+- Paste the full CDS from the same gene/reference version. The PCR product and CDS must share a sufficient overlapping sequence, but neither input needs to contain the other completely.
+- The program locates the sgRNA from the supplied full CDS and sgRNA sequence; no manual CDS coordinate is required.
+- The sgRNA must map to one unambiguous position in the full CDS.
+- The sgRNA line above the DNA alignment is positioned from the sgRNA sequence match within the PCR reference.
+- Reports include both PCR-reference coordinates and mapped full-CDS `c.` coordinates. Differences outside the mapped coding overlap are reported as outside the mapped CDS.
+- Uncovered ends of a longer reference sequence are not counted as deletions.
+- The program detects exact sgRNA matches only.
+- `.ab1` files and FASTA files are used as the source of called mutant bases for alignment and variant detection; chromatograms are not included in exported figures.
 
 ## Suggested Methods Text
 
 ```text
-Sanger sequencing reads in .ab1 format or base-called mutant sequences in FASTA format were analyzed using a custom Python graphical tool. The base-called sequence from each read or FASTA record was aligned to a user-supplied PCR amplicon reference sequence, and both forward and reverse-complement orientations were evaluated automatically. Sequence differences were classified as substitutions, insertions, or deletions from the read-to-reference alignment. The sgRNA sequence was located in both the PCR amplicon reference and the full CDS sequence. A user-defined local nucleotide window around the first base of the sgRNA was used for display of wild-type and mutant DNA alignments. Insertions and deletions were represented by gap characters, and non-matching bases were highlighted in red. Variants within the selected PCR-reference window were projected onto the full CDS, and the resulting mutant CDS was translated codon by codon until the first stop codon. Wild-type and mutant protein sequences were aligned, and a user-defined local amino-acid window around the sgRNA-targeted amino acid was displayed. Publication-style figures were exported as PNG and editable PDF files.
+Sanger sequencing reads in .ab1 format or base-called mutant sequences in FASTA format were analyzed using a custom Python graphical tool. The called sequence from each read or FASTA record was aligned against a user-supplied PCR amplicon reference sequence, and the program automatically evaluated both forward and reverse-complement orientations. Sequence differences were classified as substitutions, insertions, or deletions. The sgRNA sequence was located directly in the user-supplied full CDS sequence and independently matched to the PCR amplicon reference. User-selected nucleotide flanks around the sgRNA defined the local PCR-reference/mutant DNA region displayed in the summary figure. Local reference and mutant sequences were aligned with gap characters used to represent insertions or deletions, and all non-matching bases were displayed in red. Only variants inside this selected PCR-reference window were projected onto the complete CDS for protein translation. The resulting mutant protein sequence was globally aligned to the WT protein sequence, and only the user-selected local amino-acid window was displayed. Translation was stopped at the first stop codon. Publication-style summary figures were exported as PNG and editable PDF files.
 ```
 
-## Notes and Limitations
+## Sharing the Program
 
-- The PCR amplicon reference can be shorter than the full CDS, but it must cover the sgRNA target region.
-- The full CDS should come from the same gene/reference version as the PCR amplicon.
-- The sgRNA is detected by exact sequence matching.
-- If the sgRNA matches multiple positions, inspect the input sequence carefully before interpreting the result.
-- The tool uses the base-called sequence from `.ab1` files or the sequence from FASTA files. Sanger chromatogram traces are read from the AB1 file format but are not plotted in the current publication summary figure.
-- Very noisy or mixed sequencing reads may require manual review in dedicated Sanger trace software.
-- This tool is intended for research visualization and screening support, not clinical or diagnostic use.
+If you share this tool with someone else, include:
 
-## Troubleshooting
+- the Python files
+- the requirements file
+- the Windows launcher
+- this README
 
-### The BAT file closes immediately
-
-Open a terminal in the program folder and run:
-
-```bash
-run_mutant_id_gui.bat
-```
-
-or:
-
-```bash
-python mutant_id_gui.py
-```
-
-This keeps the error message visible.
-
-### Missing package error
-
-Install dependencies:
-
-```bash
-python -m pip install -r requirements-mutant-id.txt
-```
-
-### NumPy or binary compatibility error
-
-Use a clean virtual environment:
-
-```bash
-python -m venv .venv
-.venv\Scripts\activate
-python -m pip install --upgrade pip
-python -m pip install -r requirements-mutant-id.txt
-python mutant_id_gui.py
-```
-
-### sgRNA not found
-
-Check that:
-
-- the sgRNA sequence is in the PCR amplicon reference
-- the sgRNA sequence is in the full CDS
-- the sequence was pasted in the correct orientation
-- there are no extra non-DNA characters
-
-### Protein sequence looks incorrect
-
-Check that the CDS starts at the correct ATG and is in frame. The CDS input should be the coding sequence, not the genomic sequence with introns.
-
-## Sharing
-
-To share the program, include:
-
-```text
-mutant_id_gui.py
-mutant_id_core.py
-requirements-mutant-id.txt
-run_mutant_id_gui.bat
-README.md
-```
-
-Do not include private sequencing data, unpublished experimental data, or personal output folders unless they are intended to be shared.
-
-## License
-
-No license file is included by default. Add a license before public release if other users are allowed to reuse, modify, or redistribute the code.
+Do not include private sequencing data unless it is intended to be shared.
