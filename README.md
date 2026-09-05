@@ -15,6 +15,8 @@ The program:
 - supports multiple mutant samples in one run
 - exports publication-style PNG and editable PDF figures
 
+<img width="1210" height="534" alt="image" src="https://github.com/user-attachments/assets/e3ee45f5-5ad4-4dd8-ac58-0aface8a82cf" />
+
 ## Files
 
 ```text
